@@ -7,12 +7,17 @@
 	<script src="d3.v7.min.js"></script>
 	<style>
 		@charset "utf-8";
+		body{
+			font-size: 1em;
+			text-size-adjust:  400%;
+		}
 		.cell {
 			width: 3em;
 			height: 3em;
 			border: thin solid white;
 			background-color: lightgray;
 			align-self: center;
+			/*flex:  1 0 auto;*/
 		}
 		.row{
 			width: 100%;
@@ -79,10 +84,14 @@
 			var value = 0;
 			var yvalue = 0;
 			var isOn = false;
+			var cellsize = 60 / grid;
 	
 			var toprow = d3.select('#test').append('div')
-					.classed('row', true);
+				.style("height", cellsize + "vw")
+				.classed('row', true);
 			toprow.append('div')
+				.style("width", cellsize + "vw")
+				.style("height", cellsize + "vw")
 				.classed("columnlabel", true)
 				.classed("rowlabel", true)
 				.classed("cell", true);
@@ -90,6 +99,8 @@
 			for (var x = 0; x < grid; x++){
 				toprow.append('div')
 				.classed("cell", true)
+				.style("width", cellsize + "vw")
+				.style("height", cellsize + "vw")
 				.classed("columnlabel", true)
 				.attr("id", "y" + x);
 				}
@@ -101,6 +112,8 @@
 					.classed('row', true);
 				row.append('div')
 					.classed("cell", true)
+					.style("width", cellsize + "vw")
+					.style("height", cellsize + "vw")
 					.classed("rowlabel", true)
 					.attr("id", "x" + x);
 				
@@ -111,6 +124,8 @@
 					array[x][y].isCorrect = isOn;
 	
 					row.append('div')
+						.style("width", cellsize + "vw")
+						.style("height", cellsize + "vw")
 						.classed("cell", true)
 						//.text((isOn)? "O" : "X")
 						.attr ('x', x)
