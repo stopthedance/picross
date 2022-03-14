@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en-US" manifest="manifest.mf">
+<head>
+	<meta charset="utf-8">
+	<title>Picross Test</title>
+	<!-- d3 library -->
+	<script src="d3.v7.min.js"></script>
+	<style>
+		@charset "utf-8";
+		.cell {
+			width: 3em;
+			height: 3em;
+			border: thin solid white;
+			background-color: lightgray;
+			align-self: center;
+		}
+		.row{
+			width: 100%;
+			display: flex;
+			flex-flow: row;
+			justify-content: flex-start;
+		}
+		.rowlabel{
+			width: 6em;
+		}
+		.columnlabel{
+			height: 6em;
+		}
+
+	</style>
+</head>
+<body id="body">
+	<header>
+	<form name="myform" onSubmit="return handleClick()">
+        <input name="Submit"  type="submit" value="Load Picross" >
+        <input type="number" id="myVal" placeholder="5">
+     </form>
+ 	</header>
+ 	<section>
+		<div id="test" style="width: 90vw; height:  90vh; background-color: lightgray; border: thin solid black;">
+			
+		</div>
+	</section>
+
+	<script>
+		let cell = class {
+			isCorrect;
+			wasHit = false;
+			constructor(){
+
+			}
+		}
+
+		var grid = 5;
+		var array = [];
+		var columnGroups = [];
+		var rowGroups = [];
+
+		function LoadPicross()
+		{
+			d3.select('#test').html('');
+
+			array = [];
+			columnGroups = [];
+			rowGroups = [];
+			
+			for (var p = 0; p < grid; p++){
+				columnGroups.push([0]);
+				rowGroups.push([0]);
+				array.push([new cell()]);
+			}
+			
+			array.forEach(element => {
+				for (var p = 0; p < (grid - 1); p ++){
+					element.push(new cell());
+				}
+			});
+			
+			var value = 0;
+			var yvalue = 0;
+			var isOn = false;
+	
+			var toprow = d3.select('#test').append('div')
+					.classed('row', true);
+			toprow.append('div')
+				.classed("columnlabel", true)
+				.classed("rowlabel", true)
+				.classed("cell", true);
+	
+			for (var x = 0; x < grid; x++){
+				toprow.append('div')
+				.classed("cell", true)
+				.classed("columnlabel", true)
+				.attr("id", "y" + x);
+				}
+	
+			for (var x = 0; x < grid; x++){
+				//create row div
+	
+				var row = d3.select('#test').append('div')
+					.classed('row', true);
+				row.append('div')
+					.classed("cell", true)
+					.classed("rowlabel", true)
+					.attr("id", "x" + x);
+				
+				//create each cell in the row
+				for (var y = 0; y < grid; y++){
+					isOn = d3.randomInt(2)() > 0;
+	
+					array[x][y].isCorrect = isOn;
+	
+					row.append('div')
+						.classed("cell", true)
+						//.text((isOn)? "O" : "X")
+						.attr ('x', x)
+						.attr ('y', y)
+						.on("mouseover", function(){
+				            d3.select(this)
+				                .style("cursor", "pointer");
+				        	})
+				        .on("mouseout", function(){
+			                d3.select(this)
+				                .style("cursor", "default");
+				        	})
+				        .on("click", function(e){
+				        	let correct = CheckCell(Number(d3.select(this).attr('x')),Number(d3.select(this).attr('y')));
+				        	d3.select(this)
+				        		.style("background-color", (correct) ? "green" : "gray");
+				        	});
+	
+					if (isOn){
+						value++;
+						columnGroups[y][columnGroups[y].length - 1] ++;
+					} else {
+						if (value > 0){
+							rowGroups[x][rowGroups[x].length - 1] = value;
+							rowGroups[x].push(0);
+						}
+						if (columnGroups[y][columnGroups[y].length - 1] > 0)
+							columnGroups[y].push(0);
+						value = 0;
+					}
+				}
+				//console.log(columnGroups[grid - 1].length);
+				if (value > 0){
+					rowGroups[x][rowGroups[x].length - 1] = value;
+				}
+				// if (columnGroups[grid - 1][columnGroups[grid - 1].length - 1] > 0)
+				// 			columnGroups[grid - 1].push(0);
+				value = 0;
+			}
+			for (var x = 0; x < grid; x++){
+				let s = "";
+				rowGroups[x].forEach(element =>{
+					if (element > 0)
+						s += element + " ";
+				});
+				if (s == "")
+					s = "0";
+				d3.select('#x'+x)
+					.html(s)
+			}
+			console.log("rows:");
+			console.log(rowGroups);
+			for (var x = 0; x < grid; x++){
+				let s = "";
+				columnGroups[x].forEach(element =>{
+					if (element > 0)
+						s += element + "</br>";
+				});
+				if (s == "")
+					s = "0";
+				d3.select('#y'+x)
+					.html(s)
+			}
+			console.log("columns:");
+			console.log(columnGroups);
+			console.log("Cell Array");
+			console.log(array);
+		}
+
+		function CheckCell(x, y){
+			return array[x][y].isCorrect;
+		}
+
+		function handleClick (event){
+			grid = Number(document.getElementById("myVal").value);
+			LoadPicross();
+			return false;
+		}
+
+		LoadPicross();
+	</script>
+</body>
+</html>
